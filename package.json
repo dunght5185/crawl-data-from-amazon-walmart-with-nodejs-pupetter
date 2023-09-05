@@ -1,0 +1,13 @@
+{
+  "name": "crawl-data-from-amazon-walmart-with-nodejs-pupetter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/dunght5185/crawl-data-from-amazon-walmart-with-nodejs-pupetter.git",
+  "author": "Dung.Hoang <dunght5185@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "csv-writer": "^1.6.0",
+    "fs": "^0.0.1-security",
+    "puppeteer": "^21.1.1"
+  }
+}
