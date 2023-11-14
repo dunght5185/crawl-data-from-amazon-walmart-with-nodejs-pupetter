@@ -170,7 +170,7 @@ async function saveToCSV(data) {
     attArrs.push({ id: `attributesN${i}`, title: `Attribute ${i} name` }, { id: `attributesV${i}`, title: `Attribute ${i} value(s)` },)
   }
   const csvWriter = createObjectCsvWriter({
-    path: 'productDataAmazon.csv',
+    path: 'productDataAmazon-A.csv',
     header: [
       { id: 'title', title: 'Title' },
       { id: 'price', title: 'Price' },
@@ -222,7 +222,7 @@ async function saveToCSV(data) {
   console.log('CSV file saved successfully.');
 }
 
-fs.readFile('./test.txt', 'utf-8', async (err, data) => {
+fs.readFile('./product20231021.txt', 'utf-8', async (err, data) => {
   if (err) {
     console.log(err);
   } else {

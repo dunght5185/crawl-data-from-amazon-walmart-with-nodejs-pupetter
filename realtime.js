@@ -16,19 +16,14 @@ async function getDataAmazon(domain) {
       return links.map(link => {
         const titleElement = link.querySelector('#productTitle');
         const priceElement = link.querySelector('span[data-a-color="price"] span:nth-child(2)');
-        const aboutElement = link.querySelector('#feature-bullets ul') ? `<h1 class="a-size-base-plus a-text-bold"> About this item </h1> ${link.querySelector('#feature-bullets ul').outerHTML}` : '';
-        //const descriptionElement = link.querySelector('#productDescription p') ? `<h2 class="default"> Product Description  </h2> ${link.querySelector('#productDescription p').textContent}` : (link.querySelector('.aplus-v2.desktop.celwidget') ? link.querySelector('.aplus-v2.desktop.celwidget').outerHTML : '');
-        const productInformationElement = link.querySelector('#prodDetails .a-column.a-span6') ? `<h2>Product information </h2> ${link.querySelector('#prodDetails .a-column.a-span6').innerHTML.replace('<h1 class="a-size-medium a-spacing-small">Technical Details</h1>', '')}` : (link.querySelector('#detailBullets_feature_div ul') ? `<h2>Product information </h2> ${link.querySelector('#detailBullets_feature_div ul').outerHTML}` : '');
-        const attributeElement = link.querySelector('div#productOverview_feature_div table');
+        const isInStock = priceElement ? priceElement.textContent.trim() != '' ? 'In Stock' : 'Out Stock' : 'Out Stock';
 
         return {
           title: titleElement ? titleElement.textContent.trim() : '',
           price: priceElement ? priceElement.textContent : '',
-          productInformation: productInformationElement,
-          productDescription: aboutElement,
-          attributes: attributeElement ? attributeElement.textContent.trim().split(/\s{2,}/) : '',
+          isInStock: isInStock,
         };
-      }).slice(0, 5);
+      }).slice(0, 3);
     });
     result.push(...products);
     console.log(products);
@@ -43,30 +38,24 @@ async function getDataWalMart(domain) {
     const browser = await puppeteer.launch({ headless: 'new' });
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
-    await page.goto(domain, { timeout: 45000 });
+    await page.goto(domain, { timeout: 30000 });
 
     const products = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('#maincontent'));
       return links.map(link => {
         const titleElement = link.querySelector('h1[itemprop="name"]');
         const priceElement = link.querySelector('span[itemprop="price"]');
-        const aboutThisItem = link.querySelector('section[data-testid="product-description"] section[aria-describedby="delivery-instructions"] div[data-testid="product-description-content"]');
-        const productSpecifications = link.querySelector('section.expand-collapse-section.nl3.nr3[aria-describedby="delivery-instructions"] div.nt1');
-        const brand = link.querySelector('a.bg-transparent.lh-solid.underline.inline-button.mid-gray.pointer');
-        const gtin = '';
-        const category = link.querySelector('nav[aria-label="breadcrumb"]');
+        const isInStock = priceElement ? priceElement.textContent.trim() != '' ? 'In Stock' : 'Out Stock' : 'Out Stock';
+        // const category = link.querySelector('nav[aria-label="breadcrumb"]');
 
         return {
           titleElement: titleElement ? titleElement.textContent.trim() : '',
           priceElement: priceElement ? priceElement.textContent.trim() : '',
-          aboutThisItem: aboutThisItem ? `<h1>About this item</h1><br>${aboutThisItem.innerHTML}` : '',
-          productSpecifications: productSpecifications ? productSpecifications.innerHTML : '',
-          brand: brand ? brand.textContent.trim() : '',
-          gtin: gtin,
-          category: category ? category.textContent.trim() : '',
+          isInStock: isInStock,
+          // category: category ? category.textContent.trim() : '',
         };
         
-      }).slice(0, 7);
+      }).slice(0, 3);
       
     });
 
@@ -79,20 +68,12 @@ async function getDataWalMart(domain) {
 }
   
 async function saveToCSV(data) {
-  let attArrs = []
-  for (let i= 1; i <= 8; i++){
-    attArrs.push({ id: `attributesN${i}`, title: `Attribute ${i} name` }, { id: `attributesV${i}`, title: `Attribute ${i} value(s)` },)
-  }
   const csvWriter = createObjectCsvWriter({
-    path: 'productDataWaltmart-AAAA.csv',
+    path: 'productDataWaltmart-B.csv',
     header: [
       { id: 'titleElement', title: 'Title' },
       { id: 'priceElement', title: 'Price' },
-      { id: 'aboutThisItem', title: 'About This Item' },
-      { id: 'productSpecifications', title: 'Product Specifications' },
-      { id: 'brand', title: 'Brand' },
-      { id: 'gtin', title: 'UPC' },
-      { id: 'category', title: 'Category' },
+      { id: 'isInStock', title: 'Is In Stock' },
     ],
   });
 
@@ -114,25 +95,31 @@ function domainHandover(domains) {
         let domainT = domain.trim();
       if (domainT !== '' && isAmazon) {
         // Continue with the rest of your code
-        console.log(domainT);
+        console.log('Go to get Amazon data process >> ');
         
         await getDataAmazon(domainT);
         // Wait for 3 seconds
         await delay(3000); // 3000 milliseconds = 3 seconds
+
+        console.log('Finished get Amazon data process! ');
+        console.log('=====================================================');
       } else if (domainT !== '' && isWalmart) {
         // Continue with the rest of your code
-        console.log(domainT);
+        console.log('Go to get Walmart data process >> ');
 
         await getDataWalMart(domainT);
         // Wait for 3 seconds
         await delay(3000); // 3000 milliseconds = 3 seconds
+
+        console.log('Finished get Walmart data process! ');
+        console.log('=====================================================');
       }
     }
     resolve();
   });
 }
 
-fs.readFile('./input-a.txt', 'utf-8', async (err, data) => {
+fs.readFile('./test.txt', 'utf-8', async (err, data) => {
   if (err) {
     console.log(err);
   } else {
